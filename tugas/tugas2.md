@@ -15,7 +15,7 @@
 
 
 3.Tampilan End Point Update Book:
-![Tampilan End point Update](screenshoots/DELETE.png)
+![Tampilan End point Update](screenshoots/PUT.png)
 
 
 
