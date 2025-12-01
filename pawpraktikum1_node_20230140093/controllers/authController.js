@@ -14,7 +14,7 @@ exports.register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await User.create({
-      name: name,             // ✔ wajib 'name'
+      name: name,             
       email,
       password: hashedPassword,
       role: role || 'mahasiswa'
@@ -22,7 +22,12 @@ exports.register = async (req, res) => {
 
     res.status(201).json({
       message: "Registrasi berhasil",
-      data: { id: newUser.id, email: newUser.email, role: newUser.role }
+      data: { 
+        id: newUser.id, 
+        name: newUser.name,          // ✔ tambahkan agar konsisten
+        email: newUser.email, 
+        role: newUser.role 
+      }
     });
 
   } catch (error) {
@@ -48,13 +53,16 @@ exports.login = async (req, res) => {
 
     const payload = {
       id: user.id,
-      name: user.name,      // ✔ wajib 'name'
+      name: user.name,   // ✔ perbaikan utama: gunakan 'name'
       role: user.role
     };
 
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
 
-    res.json({ message: "Login berhasil", token });
+    res.json({ 
+      message: "Login berhasil", 
+      token 
+    });
 
   } catch (error) {
     console.error("Login Gagal:", error);

@@ -1,63 +1,40 @@
-const { Presensi } = require("../models");
+const { Presensi, User } = require("../models");
 const { Op } = require("sequelize");
 
-
-const { format, zonedTimeToUtc } = require("date-fns-tz");
-
-
-
+const { format } = require("date-fns-tz");
 
 exports.getDailyReport = async (req, res) => {
   try {
-    const { nama, tanggalMulai, tanggalSelesai } = req.query;
-    const timeZone = "Asia/Jakarta";
+    const { nama } = req.query;
 
-    let options = { where: {} };
+    let options = {
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["nama"],
+        },
+      ],
+    };
 
-    // Filter berdasarkan nama (opsional)
     if (nama) {
-      options.where.nama = { [Op.like]: `%${nama}%` };
-    }
-
-    // Filter rentang tanggal (WIB -> UTC)
-    if (tanggalMulai && tanggalSelesai) {
-      const startDate = `${tanggalMulai}T00:00:00`;
-      const endDate = `${tanggalSelesai}T23:59:59`;
-
-      const startUtc = zonedTimeToUtc(startDate, timeZone);
-      const endUtc = zonedTimeToUtc(endDate, timeZone);
-
-      if (isNaN(startUtc) || isNaN(endUtc) || startUtc > endUtc) {
-        return res.status(400).json({
-          message: "Format tanggalMulai atau tanggalSelesai tidak valid. Gunakan format YYYY-MM-DD.",
-        });
-      }
-
-      options.where.checkIn = { [Op.between]: [startUtc, endUtc] };
+      // Baris ini akan error jika 'Op' tidak diimpor
+      options.include[0].where = {
+        nama: {
+          [Op.like]: `%${nama}%`,
+        },
+      };
     }
 
     const records = await Presensi.findAll(options);
 
-    const formattedRecords = records.map((item) => ({
-      id: item.id,
-      userId: item.userId,
-      nama: item.nama,
-      checkIn: item.checkIn ? format(item.checkIn, "dd-MM-yyyy HH:mm:ss", { timeZone }) : null,
-      checkOut: item.checkOut ? format(item.checkOut, "dd-MM-yyyy HH:mm:ss", { timeZone }) : null,
-      createdAt: format(item.createdAt, "dd-MM-yyyy HH:mm:ss", { timeZone }),
-      updatedAt: format(item.updatedAt, "dd-MM-yyyy HH:mm:ss", { timeZone }),
-    }));
-
-    res.status(200).json({
-      reportDate: format(new Date(), "dd-MM-yyyy HH:mm:ss", { timeZone }),
-      totalRecords: formattedRecords.length,
-      data: formattedRecords,
+    res.json({
+      reportDate: new Date().toLocaleDateString(),
+      data: records,
     });
   } catch (error) {
-    console.error("❌ Error saat mengambil laporan harian:", error);
-    res.status(500).json({
-      message: "Gagal mengambil laporan harian",
-      error: error.message,
-    });
+    res
+      .status(500)
+      .json({ message: "Gagal mengambil laporan", error: error.message });
   }
 };
