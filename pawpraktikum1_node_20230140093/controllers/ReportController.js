@@ -1,7 +1,7 @@
-const { Presensi, User } = require("../models");
+const models = require("../models");
+const Presensi = models.Presensi;
+const User = models.User;
 const { Op } = require("sequelize");
-
-const { format } = require("date-fns-tz");
 
 exports.getDailyReport = async (req, res) => {
   try {
@@ -12,29 +12,28 @@ exports.getDailyReport = async (req, res) => {
         {
           model: User,
           as: "user",
-          attributes: ["nama"],
+          attributes: ["name"], // nama field yang benar
         },
       ],
+      order: [["checkIn", "DESC"]],
     };
 
     if (nama) {
-      // Baris ini akan error jika 'Op' tidak diimpor
       options.include[0].where = {
-        nama: {
-          [Op.like]: `%${nama}%`,
-        },
+        name: { [Op.like]: `%${nama}%` },
       };
     }
 
     const records = await Presensi.findAll(options);
 
     res.json({
-      reportDate: new Date().toLocaleDateString(),
+      success: true,
+      reportDate: new Date().toLocaleDateString("id-ID"),
       data: records,
     });
+
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Gagal mengambil laporan", error: error.message });
+    console.log("REPORT ERROR:", error);
+    res.status(500).json({ message: "Gagal mengambil laporan", error: error.message });
   }
 };

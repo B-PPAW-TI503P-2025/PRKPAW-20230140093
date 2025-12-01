@@ -6,7 +6,7 @@
  	exports.CheckIn = async (req, res) => {
  	  // 2. Gunakan try...catch untuk error handling
  	  try {
- 	    const { id: userId, nama: userName } = req.user;
+ 	    const { id: userId, name: userName } = req.user;
  	    const waktuSekarang = new Date();
 
 		const { latitude, longitude } = req.body;
@@ -33,7 +33,7 @@
  	    
  	    const formattedData = {
  	        userId: newRecord.userId,
- 	        nama: newRecord.nama,
+ 	        name: newRecord.name,
  	        checkIn: format(newRecord.checkIn, "yyyy-MM-dd HH:mm:ssXXX", { timeZone }),
  	        checkOut: null
  	    };
@@ -54,7 +54,7 @@
  	exports.CheckOut = async (req, res) => {
  	  // Gunakan try...catch
  	  try {
- 	    const { id: userId, nama: userName } = req.user;
+ 	    const { id: userId, name: userName } = req.user;
  	    const waktuSekarang = new Date();
  	
  	    // Cari data di database
@@ -74,7 +74,7 @@
  	
  	    const formattedData = {
  	        userId: recordToUpdate.userId,
- 	        nama: recordToUpdate.nama,
+ 	        name: recordToUpdate.name,
  	        checkIn: format(recordToUpdate.checkIn, "yyyy-MM-dd HH:mm:ssXXX", { timeZone }),
  	        checkOut: format(recordToUpdate.checkOut, "yyyy-MM-dd HH:mm:ssXXX", { timeZone }),
  	    };
