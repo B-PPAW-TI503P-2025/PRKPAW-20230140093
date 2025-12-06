@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const morgan = require("morgan");
+const path = require('path'); 
 
 // Definisikan PORT sekali di awal
 const PORT = 3001; 
@@ -21,6 +22,7 @@ app.use(cors(corsOptions));
 // Ini harus dipanggil SEBELUM route Anda untuk memparsing req.body
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // --- 3. MIDDLEWARE LOGGING ---
 // Morgan untuk logging HTTP
@@ -61,3 +63,4 @@ app.listen(PORT, () => {
 // app.use('/api/attendance', presensiRoutes); 
 // app.use('/api/reports', reportRoutes); 
 // app.use('/api/auth', authRoutes); // Sudah ada di bagian Routes API
+
